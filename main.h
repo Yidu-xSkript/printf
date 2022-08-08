@@ -1,24 +1,78 @@
+#ifndef _GLOBAL_DEFINITIONS_H
+#define _GLOBAL_DEFINITIONS_H
+
+#endif
+
+#ifndef STDLIB_H
+#define STDLIB_H
+
+#include <stdlib.h>
+
+#endif
+
+#ifndef STDARG_H
+#define STDARG_H
+
+#include <stdarg.h>
+
+#endif
+
 #ifndef MAIN_H
 #define MAIN_H
 
-#include <limits.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <unistd.h>
+/**
+ * struct print_buffer - structer for the write buffer.
+ * @index: current index of the buffer.
+ * @size: size of the buffer.
+ * @overflow: this recoreds the overflow.
+ * @str: pointer to memory that contains the content for this buffer.
+ */
+typedef struct print_buffer
+{
+	size_t index;
+	size_t size;
+	size_t overflow;
+	char *str;
+} buffer;
+
+buffer *buf_new();
+buffer *buf_custom(size_t);
+size_t buf_size(buffer *);
+size_t buf_index(buffer *);
+char *buf_content(buffer *);
+void buf_write(buffer *);
+void buf_end(buffer *);
+void buf_wr(buffer *);
+void buf_inc(buffer *);
 
 /**
- * struct buffer_s - A new type defining a buffer struct.
- * @buffer: A pointer to a character array.
- * @start: A pointer to the start of buffer.
- * @len: The length of the string stored in buffer.
+ * struct print_ops - struct for the write operators.
+ * @op: hold a symbol that represents the operator.
+ * @fn: pointer function to the write functions.
  */
-typedef struct buffer_s
+typedef struct print_ops
 {
-	char *buffer;
-	char *start;
-	unsigned int len;
-} buffer_t;
+	char *op;
+	int (*fn)(buffer *, va_list);
+} prtOp;
+
+prtOp *prtOp_init();
+
+void append_num(buffer *buf, unsigned int num);
+
+int write_bin(buffer *buf, va_list v_ls);
 
 int _printf(const char *format, ...);
 
-#endif /* MAIN_H */
+int opid(buffer *buf, va_list v_ls, const char *src, int src_i);
+
+int write_char(buffer *buf, va_list v_ls);
+
+int write_str(buffer *buf, va_list v_ls);
+
+int write_mod(buffer *buf, va_list v_ls);
+
+int write_int(buffer *buf, va_list v_ls);
+
+char *itoc(int num, char *dest);
+#endif

@@ -1,28 +1,45 @@
 #include "main.h"
-
-int _printf(const char *format, ...);
+#include <stdlib.h>
 
 /**
- * _printf - Outputs a formatted string.
- * @format: Character string to print - may contain directives.
- *
- * Return: The number of characters printed.
+ * _printf - prints any string with certain flags for modification
+ * @format: the string of characters to write to buffer
+ * Return: an integer that counts how many writes to the buffer were made
  */
 int _printf(const char *format, ...)
 {
-	buffer_t *op;
-	va_list argz;
-	int returnf;
+	int i = 0, var = 0;
+	va_list v_ls;
+	buffer *buf;
 
+	buf = buf_new();
+	if (buf == NULL)
+		return (-1);
 	if (format == NULL)
 		return (-1);
-	op = init_buffer();
-	if (op == NULL)
-		return (-1);
-
-	va_start(argz, format);
-
-	returnf = run_printf(format, argz, op);
-
-	return (returnf);
+	va_start(v_ls, format);
+	while (format[i])
+	{
+		buf_wr(buf);
+		if (format[i] == '%')
+		{
+			var = opid(buf, v_ls, format, i);
+			if (var < 0)
+			{
+				i = var;
+				break;
+			}
+			i += var;
+			continue;
+		}
+		buf->str[buf->index] = format[i];
+		buf_inc(buf);
+		i++;
+	}
+	buf_write(buf);
+	if (var >= 0)
+		i = buf->overflow;
+	buf_end(buf);
+	va_end(v_ls);
+	return (i);
 }
