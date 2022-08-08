@@ -1,78 +1,116 @@
-#ifndef _GLOBAL_DEFINITIONS_H
-#define _GLOBAL_DEFINITIONS_H
-
-#endif
-
-#ifndef STDLIB_H
-#define STDLIB_H
-
-#include <stdlib.h>
-
-#endif
-
-#ifndef STDARG_H
-#define STDARG_H
-
-#include <stdarg.h>
-
-#endif
-
 #ifndef MAIN_H
 #define MAIN_H
+#include <stdarg.h>
+#include <stdio.h>
+#include <unistd.h>
+
+#define UNUSED(x) (void)(x)
+#define BUFF_SIZE 1024
+
+/* FLAGS */
+#define F_MINUS 1
+#define F_PLUS 2
+#define F_ZERO 4
+#define F_HASH 8
+#define F_SPACE 16
+
+/* SIZES */
+
+#define S_LONG 2
+#define S_SHORT 1
 
 /**
- * struct print_buffer - structer for the write buffer.
- * @index: current index of the buffer.
- * @size: size of the buffer.
- * @overflow: this recoreds the overflow.
- * @str: pointer to memory that contains the content for this buffer.
+ * struct fmt - Struct op
+ * @fmt: The format..
+ * @fn: The function associated.
  */
-typedef struct print_buffer
-{
-	size_t index;
-	size_t size;
-	size_t overflow;
-	char *str;
-} buffer;
 
-buffer *buf_new();
-buffer *buf_custom(size_t);
-size_t buf_size(buffer *);
-size_t buf_index(buffer *);
-char *buf_content(buffer *);
-void buf_write(buffer *);
-void buf_end(buffer *);
-void buf_wr(buffer *);
-void buf_inc(buffer *);
+struct fmt
+
+{
+char fmt;
+int (*fn)(va_list, char[], int, int, int, int);
+};
 
 /**
- * struct print_ops - struct for the write operators.
- * @op: hold a symbol that represents the operator.
- * @fn: pointer function to the write functions.
+ * typedef struct fmt fmt_t - Struct op
+ * @fmt: The format.
+ * @fm_t: The function associated.
  */
-typedef struct print_ops
-{
-	char *op;
-	int (*fn)(buffer *, va_list);
-} prtOp;
 
-prtOp *prtOp_init();
-
-void append_num(buffer *buf, unsigned int num);
-
-int write_bin(buffer *buf, va_list v_ls);
+typedef struct fmt fmt_t;
 
 int _printf(const char *format, ...);
+int handle_print(const char *fmt, int *i,
+va_list list, char buffer[], int flags, int width, int precision, int size);
 
-int opid(buffer *buf, va_list v_ls, const char *src, int src_i);
+/****************** FUNCTIONS ******************/
 
-int write_char(buffer *buf, va_list v_ls);
+/* Funtions to print chars and strings */
 
-int write_str(buffer *buf, va_list v_ls);
+int print_char(va_list types, char buffer[],
+int flags, int width, int precision, int size);
+int print_string(va_list types, char buffer[],
+int flags, int width, int precision, int size);
+int print_percent(va_list types, char buffer[],
+int flags, int width, int precision, int size);
 
-int write_mod(buffer *buf, va_list v_ls);
+/* Functions to print numbers */
 
-int write_int(buffer *buf, va_list v_ls);
+int print_int(va_list types, char buffer[],
+int flags, int width, int precision, int size);
+int print_binary(va_list types, char buffer[],
+int flags, int width, int precision, int size);
 
-char *itoc(int num, char *dest);
-#endif
+/* Function to print non printable characters */
+
+int print_non_printable(va_list types, char buffer[],
+int flags, int width, int precision, int size);
+
+/* Funcion to print memory address */
+
+int print_pointer(va_list types, char buffer[],
+int flags, int width, int precision, int size);
+
+/* Funciotns to handle other specifiers */
+
+int get_flags(const char *format, int *i);
+int get_width(const char *format, int *i, va_list list);
+int get_precision(const char *format, int *i, va_list list);
+int get_size(const char *format, int *i);
+
+/*Function to print string in reverse*/
+
+int print_reverse(va_list types, char buffer[],
+int flags, int width, int precision, int size);
+
+/*Function to print a string in rot 13*/
+
+int print_rot13string(va_list types, char buffer[],
+int flags, int width, int precision, int size);
+
+/* width handler */
+
+int handle_write_char(char c, char buffer[],
+int flags, int width, int precision, int size);
+int write_number(int is_positive, int ind, char buffer[],
+int flags, int width, int precision, int size);
+int write_num(int ind, char bff[], int flags, int width, int precision,
+int length, char padd, char extra_c);
+int write_pointer(char buffer[], int ind, int length,
+int width, int flags, char padd, char extra_c, int padd_start);
+
+int write_unsgnd(int is_negative, int ind,
+char buffer[],
+int flags, int width, int precision, int size);
+
+/****************** UTILS ******************/
+
+int is_printable(char);
+int append_hexa_code(char, char[], int);
+int is_digit(char);
+
+long int convert_size_number(long int num, int size);
+long int convert_size_unsgnd(unsigned long int num, int size);
+
+#endif /* MAIN_H */
